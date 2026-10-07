@@ -17,7 +17,6 @@ function App() {
       setStudents(response.data);
     });
 
-
   }, []);
 
   // This is for the Add Feature
@@ -26,36 +25,62 @@ function App() {
     axios.post("http://localhost:5000/students", newStudent)
     .then(response => console.log('Student Created:', response.data))
     .catch(error => console.error('error creating student:', error));
+
+    setName("");
+    setCourse("");
+    setAge("");
   };
 
-  // This is for the Update Feature
-  const handleUpdateStudent = (studentId) => {
-    const updateStudent = {
-      name,
-      course,
-      age,
-    };
-    axios.put(`http://localhost:5000/students/${studentId}`, updateStudent)
-      .then(response => {
-        console.log('Student updated:', response.data);
-        setStudents(students.map(student => student.id === studentId ? response.data : student));
-      })
-      .catch(error => console.error('Error updating student:', error));
+  // This is to show the student details in the field
+  const handleUpdateStudent = (student) => {
+
+    setName(student.name);
+    setCourse(student.course);
+    setAge(student.age);
+    setUpdateStudent(student._id);
   };
-  
+
+  const handleSaveUpdate = () => {
+    axios
+    .put("http://localhost:5000/students/" + updateStudent, {
+      name: name,
+      course: course,
+      age: age,
+    })
+    .then(() => {
+      axios
+      .get("http://localhost:5000/students")
+      .then((response) => {
+        setStudents(response.data);
+      });
+
+    setName("");
+    setCourse("");
+    setAge("");
+
+    });
+
+    setUpdateStudent(null);
+  };
 
   //This is for the Delete Feature
-    const handleDeleteStudent = (studentId) => {
-        setStudents(students.filter(student => student.id !== studentId));
-        axios.delete(`http://localhost:5000/students/${studentId}`)
-      .then(response => console.log('Note deleted:', response.data))
-      .catch(error => console.error('Error deleting note:', error));
+    function handleDeleteStudent (id) {
+    axios
+    .delete("http://localhost:5000/students/" + id)
+    .then(() => {
+    axios
+    .get("http://localhost:5000/students")
+    .then((response) => {
+      setStudents(response.data);
+    });
+
+    });
   };
 
 
   return (
       <div>
-        <h1>Student Management Sytem</h1>
+        <h1>Student Management System</h1>
         <h2>Students</h2>
 
         <p>Enter your Name: </p>
@@ -71,7 +96,8 @@ function App() {
 
         <br></br>
 
-        <button onClick={() => {
+        {updateStudent === null &&
+          <button onClick={() => {
           const newStudent = {
             name: name,
             course: course,
@@ -79,16 +105,19 @@ function App() {
           };
           handleCreateStudent(newStudent);
         }}> Add Student</button>
+            
+        }
 
-        <br></br>
+        {updateStudent !== null &&  <button onClick={handleSaveUpdate}>Save Update</button>}
+
 
         {students.map((student) => (
-          <div key={student.id}> 
+          <div key={student._id}> 
             <p>Name: {student.name}</p>
             <p>Course: {student.course}</p>
             <p>Age: {student.age}</p>
-            <button onClick = {() => handleUpdateStudent(student.id)}>UpdateStudent</button>
-            <button onClick = {() => handleDeleteStudent(student.id)}>Delete Student</button>
+            <button onClick = {() => handleUpdateStudent(student)}>UpdateStudent</button>
+            <button onClick = {() => handleDeleteStudent(student._id)}>Delete Student</button>
           </div>
         ))}
 

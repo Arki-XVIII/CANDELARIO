@@ -30,15 +30,6 @@ mongoose
 });
 
 
-let students = [
-    {
-        id: 1,
-        name: "Juan Dela Cruz" ,
-        course: "BSIT",
-        age: 20
-    }
-]
-
 // This is for the Read Feature
 app.get("/students", async (req, res) => {
   const students = await Student.find();
@@ -60,10 +51,10 @@ app.delete("/students/:id", async (req, res) => {
   res.json({ message: "Student deleted successfully" });
 });
 
+
 // This is for the Update Feature
 app.put("/students/:id", async (req, res) => {
   const studentId = req.params.id;
-  const { name, course, age } = req.body;
-  const updatedStudent = await Student.findByIdAndUpdate(studentId, { name, course, age }, { new: true });
-  res.json(updatedStudent);
+  await Student.findByIdAndUpdate(studentId, req.body, { new: true });
+  res.json({ message: "Student updated successfully" });
 });
